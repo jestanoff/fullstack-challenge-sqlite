@@ -2,7 +2,7 @@
 
 import { Typography } from "@mui/material";
 import { trpcReact } from "@/trpc/trpcReact";
-import Feed from "./Feed";
+import Feed from "./components/Feed";
 
 export default function Home() {
   const { data: posts } = trpcReact.getPosts.useQuery();

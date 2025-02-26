@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Button, Card, Typography, TextField, Box } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { Post } from "../types";
+import { Post } from "../../types";
 import { trpcReact } from "@/trpc/trpcReact";
 
 const PostComponent: React.FC<Partial<Post>> = ({ id, authorId, title, content }) => {

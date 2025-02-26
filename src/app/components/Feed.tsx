@@ -1,5 +1,4 @@
 import { Post } from '@/types';
-import { Box } from '@mui/material';
 import React from 'react';
 import PostComponent from './Post';
 
