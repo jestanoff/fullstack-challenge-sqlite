@@ -6,7 +6,7 @@ import Feed from "./Feed";
 
 export default function Home() {
   const { data: posts } = trpcReact.getPosts.useQuery();
-  // const { data: comments } = trpcReact.getComments.useQuery();
+
   return (
     <main>
       <Typography variant="h4" component={"h1"}>

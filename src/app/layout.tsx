@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { TrpcProvider } from "@/trpc/TrpcProvider";
 import ThemeRegistry from "./ThemeRegistry";
+import { Box } from "@mui/material";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +20,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeRegistry options={{ key: "mui" }}>
-          <TrpcProvider>{children}</TrpcProvider>
+          <TrpcProvider>
+            <Box component="section" sx={{ p: 2, width: 600, margin: "auto" }}>
+              {children}
+            </Box>
+          </TrpcProvider>
         </ThemeRegistry>
       </body>
     </html>
