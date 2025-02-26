@@ -26,7 +26,7 @@ Please complete the following tasks:
 Consider the following, for instance leaving comments close to where this is relevant:
 
 - Scalability of the solution - Code wise it should scale well, in the front-end more routes can be added and also more components within the `app/components/` folder. On the backend TRPC could would scale good adding new endpoints that would get just enough information to be displayed in the UU.
-- Performance - When multiple users are hitting their Feed posts are unique per user but comments could be cached to 1min or so to avoid hitting the database too much.
+- Performance - Lazy loading of the posts is required, like when you scroll on the page, there should be a number of posts loading at the end of the page. Chaching for the comments could do for 1min or so to avoid hitting the database too much.
 - What Database type would be fit - it should be a relationship DB like Postgres, as comments relate to posts and users to comments. It allows for caching and indexing.
 - How monitoring and logging could be implemented - TRPC has a built-in logger, but it could be extended to send logs to a service like Sentry or LogRocket.
 - SSR and SSG - SSR as the Feed is dynamic, SSG makes sense for static content like CMS pages
