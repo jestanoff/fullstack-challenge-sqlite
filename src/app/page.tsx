@@ -1,17 +1,18 @@
 "use client";
 
-import { trpcReact } from "@/trpc/trpcReact";
 import { Typography } from "@mui/material";
+import { trpcReact } from "@/trpc/trpcReact";
+import Feed from "./Feed";
 
 export default function Home() {
-  // example query...
-  // const { data } = trpcReact.getPosts.useQuery();
-
+  const { data: posts } = trpcReact.getPosts.useQuery();
+  // const { data: comments } = trpcReact.getComments.useQuery();
   return (
     <main>
       <Typography variant="h4" component={"h1"}>
         Posts
       </Typography>
+      <Feed posts={posts ?? []} />
     </main>
   );
 }
