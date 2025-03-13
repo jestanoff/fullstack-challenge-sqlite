@@ -9,8 +9,20 @@ const t = initTRPC.create({
 
 export const trpcRouter = t.router({
   // example endpoint...
-  getPosts: t.procedure.query(async ({ ctx, input }) => {
-    return await prismaClient.post.findMany();
+  getPosts: t.procedure.input(z.object({
+    limit: z.number().min(1).max(50).default(50),
+    cursor: z.number().optional(),
+  })).query(async ({ ctx, input }) => {
+    const posts = await prismaClient.post.findMany({
+      take: input.limit,
+      skip: input.cursor ? 1 : 0,
+      cursor: input.cursor ? { id: input.cursor } : undefined,
+      orderBy: { id: 'asc' },
+    });
+
+    const nextCursor = posts.length > 0 ? posts[posts.length - 1].id : null;
+
+    return { posts, nextCursor };
   }),
   getComment: t.procedure
     .input(z.object({ postId: z.string() }))

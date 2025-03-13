@@ -1,47 +1,21 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, Card, Typography, TextField, Box } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { Post } from "../../types";
+import { Post } from "../types";
 import { trpcReact } from "@/trpc/trpcReact";
 
 const PostComponent: React.FC<Partial<Post>> = ({ id, authorId, title, content }) => {
-  const [isInView, setIsInView] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
 
-  const commentsQuery = trpcReact.getComment.useQuery({ postId: `${id}` }, { enabled: !!id && isInView });
-  const { data: comments } = commentsQuery;
+  const { data: comments } = trpcReact.getComment.useQuery({ postId: `${id}` }, { enabled: !!id });
   const postCommentMutation = trpcReact.postComment.useMutation();
 
   const handleSubmitComment = useCallback(() => {
     if (!newComment.trim()) return;
-    postCommentMutation.mutate(
-      { postId: `${id}`, content: newComment },
-      {
-        onSuccess: () => {
-          commentsQuery.refetch();
-        },
-      }
-    );
+    postCommentMutation.mutate({ postId: `${id}`, content: newComment });
     setNewComment("");
-  }, [commentsQuery, id, newComment, postCommentMutation]);
-
-  useEffect(() => {
-    const refCurrent = ref.current;
-    const observer = new IntersectionObserver(([entry]) => setIsInView(entry.isIntersecting), { threshold: 0.1 });
-
-    if (refCurrent) {
-      observer.observe(refCurrent);
-    }
-
-    return () => {
-      if (refCurrent) {
-        observer.unobserve(refCurrent);
-      }
-    };
-  }, []);
+  }, [id, newComment, postCommentMutation]);
 
   return (
     <Card variant="outlined" sx={{ p: 2, my: 4 }}>
@@ -69,7 +43,6 @@ const PostComponent: React.FC<Partial<Post>> = ({ id, authorId, title, content }
       )}
       <Box sx={{ display: "flex", gap: 1, my: 2 }}>
         <TextField
-          ref={ref}
           fullWidth
           size="small"
           placeholder="Write a comment..."
