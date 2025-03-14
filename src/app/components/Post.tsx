@@ -1,47 +1,42 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button, Card, Typography, TextField, Box } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { Post } from "../../types";
+import { Close } from "@mui/icons-material";
+import { Post, Comment } from "../../types";
 import { trpcReact } from "@/trpc/trpcReact";
 
-const PostComponent: React.FC<Partial<Post>> = ({ id, authorId, title, content }) => {
-  const [isInView, setIsInView] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-
+const PostComponent: React.FC<Partial<Post>> = ({ id, authorId, title, content, comments }) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const utils = trpcReact.useUtils();
 
-  const commentsQuery = trpcReact.getComment.useQuery({ postId: `${id}` }, { enabled: !!id && isInView });
-  const { data: comments } = commentsQuery;
   const postCommentMutation = trpcReact.postComment.useMutation();
+  const deleteCommentMutation = trpcReact.deleteComment.useMutation();
 
-  const handleSubmitComment = useCallback(() => {
+  const handleSubmitComment = () => {
     if (!newComment.trim()) return;
+
     postCommentMutation.mutate(
       { postId: `${id}`, content: newComment },
       {
         onSuccess: () => {
-          commentsQuery.refetch();
+          utils.getPosts.invalidate();
+          setNewComment("");
         },
       }
     );
-    setNewComment("");
-  }, [commentsQuery, id, newComment, postCommentMutation]);
+  };
 
-  useEffect(() => {
-    const refCurrent = ref.current;
-    const observer = new IntersectionObserver(([entry]) => setIsInView(entry.isIntersecting), { threshold: 0.1 });
-
-    if (refCurrent) {
-      observer.observe(refCurrent);
-    }
-
-    return () => {
-      if (refCurrent) {
-        observer.unobserve(refCurrent);
+  const handleDeleteComment = (id: number) => {
+    deleteCommentMutation.mutate(
+      { id },
+      {
+        onSuccess: () => {
+          utils.getPosts.invalidate();
+        },
       }
-    };
-  }, []);
+    );
+  };
 
   return (
     <Card variant="outlined" sx={{ p: 2, my: 4 }}>
@@ -59,23 +54,24 @@ const PostComponent: React.FC<Partial<Post>> = ({ id, authorId, title, content }
       {showComments && (
         <>
           {comments?.map((comment) => (
-            <Card key={comment.id} variant="elevation" sx={{ p: 2, my: 4 }}>
+            <Card key={comment.id} variant="elevation" sx={{ p: 2, pr: 8, my: 4, position: "relative" }}>
               <Typography component="span" variant="body2">
                 {comment.content}
               </Typography>
+              <Button onClick={() => handleDeleteComment(comment.id)} sx={{ position: "absolute", top: 0, right: 0 }}>
+                <Close />
+              </Button>
             </Card>
           ))}
         </>
       )}
       <Box sx={{ display: "flex", gap: 1, my: 2 }}>
         <TextField
-          ref={ref}
           fullWidth
           size="small"
           placeholder="Write a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSubmitComment()}
         />
         <Button variant="contained" endIcon={<SendIcon />} onClick={handleSubmitComment} disabled={!newComment.trim()}>
           Send

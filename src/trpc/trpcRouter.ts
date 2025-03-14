@@ -7,13 +7,15 @@ const t = initTRPC.create({
   transformer: superjson,
 });
 
+const { procedure } = t;
+
 export const trpcRouter = t.router({
-  // example endpoint...
-  getPosts: t.procedure.input(z.object({
+  getPosts: procedure.input(z.object({
     limit: z.number().min(1).max(50).default(50),
     cursor: z.number().optional(),
   })).query(async ({ ctx, input }) => {
     const posts = await prismaClient.post.findMany({
+      include: { comments: true },
       take: input.limit,
       skip: input.cursor ? 1 : 0,
       cursor: input.cursor ? { id: input.cursor } : undefined,
@@ -24,12 +26,16 @@ export const trpcRouter = t.router({
 
     return { posts, nextCursor };
   }),
-  getComment: t.procedure
-    .input(z.object({ postId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return await prismaClient.comment.findMany({ where: { postId: Number(input.postId) } });
-    }),
-  postComment: t.procedure
+  getPostById: procedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
+    return await prismaClient.post.findUnique({
+      where: { id: input.id },
+      include: { comments: true },
+    });
+  }),
+  deleteComment: procedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+    return await prismaClient.comment.delete({ where: { id: input.id } });
+  }),
+  postComment: procedure
     .input(z.object({ postId: z.string(), content: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await prismaClient.comment.create({

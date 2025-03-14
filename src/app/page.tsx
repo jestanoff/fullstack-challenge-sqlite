@@ -14,12 +14,13 @@ export default function Home() {
     threshold: 0.1,
   });
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } = trpcReact.getPosts.useInfiniteQuery(
+  const postQuery = trpcReact.getPosts.useInfiniteQuery(
     { limit: 20 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }
   );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, refetch, isStale } = postQuery;
 
   useEffect(() => {
     const shouldFetch = isLoadingVisible && hasNextPage && !isFetchingNextPage && !isFetching && !fetchingRef.current;
@@ -31,6 +32,13 @@ export default function Home() {
       });
     }
   }, [isLoadingVisible, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching]);
+
+  useEffect(() => {
+    // Refetch the data when the cache is invalidated
+    if (isStale) {
+      refetch();
+    }
+  }, [isStale, refetch]);
 
   return (
     <Box>

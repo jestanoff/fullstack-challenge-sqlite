@@ -17,6 +17,7 @@ const Feed = ({ posts }: FeedProps) => {
               id={post.id}
               title={post.title}
               content={post.content}
+              comments={post.comments}
             />
           )
       )}
