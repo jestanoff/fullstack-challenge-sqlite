@@ -10,7 +10,8 @@ const Feed = ({ posts }: FeedProps) => {
     <>
       {posts.map(
         (post) =>
-          post.published && (
+          post.published &&
+          post.id && (
             <PostComponent
               key={post.id}
               authorId={post.authorId}

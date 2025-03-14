@@ -14,7 +14,7 @@ export default function Home() {
     threshold: 0.1,
   });
 
-  const postQuery = trpcReact.getPosts.useInfiniteQuery(
+  const postQuery = trpcReact.post.all.useInfiniteQuery(
     { limit: 20 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
