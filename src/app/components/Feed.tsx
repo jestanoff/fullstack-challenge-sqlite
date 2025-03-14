@@ -1,6 +1,5 @@
-import { Post } from '@/types';
-import React from 'react';
-import PostComponent from './Post';
+import { Post } from "@/types";
+import PostComponent from "./Post";
 
 interface FeedProps {
   posts: Post[];
